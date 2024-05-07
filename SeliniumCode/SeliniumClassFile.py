@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
@@ -112,7 +111,8 @@ class DataHandling(GDAPI):
         data = self.sheet.get_all_records()
         return data
 
-    def get_top_csv_path_from_folder(self, folder_path):
+    @staticmethod
+    def get_top_csv_path_from_folder(folder_path):
         # Get the top CSV file path from the specified folder
         all_files = os.listdir(folder_path)
         csv_files = [file for file in all_files if file.endswith('.csv')]
@@ -161,6 +161,25 @@ class DataHandling(GDAPI):
 
 
 class DateGenerator:
+    # def fetch_date_range(date_range):
+    #     # Get today's date
+    #     today = datetime.today()
+    #
+    #     if date_range == "last monday to sunday":
+    #         # Find the previous week's Monday
+    #         previous_monday = today - timedelta(days=today.weekday() + 7)
+    #
+    #         # Find the previous week's Sunday
+    #         previous_sunday = previous_monday + timedelta(days=6)
+    #
+    #         # Get only the date part without the timestamp
+    #         previous_monday = previous_monday.date()
+    #         previous_sunday = previous_sunday.date()
+    #
+    #         return [previous_monday, previous_sunday]
+    #     else:
+    #         raise ValueError("Invalid date range. Supported options: 'last monday to sunday'")
+
     @staticmethod
     def fetch_date_range(date_range):
         # Get today's date
@@ -178,10 +197,53 @@ class DateGenerator:
             previous_sunday = previous_sunday.date()
 
             return [previous_monday, previous_sunday]
+
+        elif date_range == "last thursday to sunday":
+            # Find the previous week's Thursday
+            previous_thursday = today - timedelta(days=(today.weekday() + 3 + 7) % 7)
+
+            # Find the previous week's Sunday
+            previous_sunday = previous_thursday + timedelta(days=(6 - (previous_thursday.weekday() + 7) % 7))
+
+            # Get only the date part without the timestamp
+            previous_thursday = previous_thursday.date()
+            previous_sunday = previous_sunday.date()
+
+            return [previous_thursday, previous_sunday]
+
+        elif date_range == "last monday to wednesday":
+            # Find the previous week's Monday
+            previous_monday = today - timedelta(days=today.weekday() + 7)
+
+            # Find the previous week's Wednesday
+            previous_wednesday = previous_monday + timedelta(days=2)
+
+            # Get only the date part without the timestamp
+            previous_monday = previous_monday.date()
+            previous_wednesday = previous_wednesday.date()
+
+            return [previous_monday, previous_wednesday]
+
         else:
-            raise ValueError("Invalid date range. Supported options: 'last monday to sunday'")
+            raise ValueError(
+                "Invalid date range. Supported options: 'last monday to sunday', 'last thursday to sunday', 'last monday to wednesday'")
 
 
+class FileRenamer:
+    def __init__(self, file_path):
+        self.file_path = file_path
+
+    def rename(self, new_name):
+        # Get the directory path and current file name
+        dir_path, file_name = os.path.split(self.file_path)
+
+        # Construct the new file path with the new name
+        new_file_path = os.path.join(dir_path, new_name)
+
+        # Rename the file
+        os.rename(self.file_path, new_file_path)
+
+        return new_file_path
 
 
 
