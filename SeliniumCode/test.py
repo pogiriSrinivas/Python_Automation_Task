@@ -126,10 +126,11 @@
 #
 
 from SeliniumCode.SeliniumClassFile import (LoginUser, WebDriverMethodClass,
-                                            GDAPI, ChromeOptions, DataHandling, DateGenerator, FileRenamer)
+                                            GDAPI, ChromeOptions, DataHandling,
+                                            DateGenerator, FileRenamer, FileManager, FileHandler)
 # Specify the path to the downloaded file
-folder_path = r'D:\Downloadcsv'
-dest_file_name = 'Finixio'
+# folder_path = r'D:\Downloadcsv'
+# dest_file_name = 'Finixio'
 required_clients_of_finixio = {
     'CO-KTSW8Z6X': "Luckyblock℗",
     'CO-KTSW83DS': "Slothana℗",
@@ -145,13 +146,9 @@ required_clients_of_finixio = {
     'CO-KTSW82B5': "LuckyBlock (FTD)℗"
 }
 
-
-source_top_csv_file_path = DataHandling.get_top_csv_path_from_folder(folder_path)
-print(f"File renamed to: {source_top_csv_file_path}")
-value_of_key2 = required_clients_of_finixio['CO-KTSW8Z6X']
-new_file_name = value_of_key2[:-1] + ".csv"
-file_renamer = FileRenamer(source_top_csv_file_path)
-new_file_path = file_renamer.rename(new_file_name)
-print(f"File renamed to: {new_file_path}")
-
-
+source_file_path = r'D:\Downloadcsv'
+new_name = required_clients_of_finixio['CO-KTSW82MR'][:-1] + '.csv'
+destination_folder = r'D:\DownloadCsvHistory'
+company_name = "Finixio"
+source_top_csv_file_path = DataHandling.get_top_csv_path_from_folder(source_file_path)
+FileHandler.complete_data_handler(source_top_csv_file_path, new_name, destination_folder, company_name)

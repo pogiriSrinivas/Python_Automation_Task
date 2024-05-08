@@ -1,9 +1,9 @@
 from selenium.webdriver.common.by import By
-from SeliniumCode.SeliniumClassFile import (LoginUser, WebDriverMethodClass, GDAPI, ChromeOptions, DataHandling, DateGenerator)
+from SeliniumCode.SeliniumClassFile import (LoginUser, WebDriverMethodClass, GDAPI, ChromeOptions, DataHandling, DateGenerator, FileRenamer, FileHandler)
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from time import sleep
-import re
+
 
 url = 'https://a2om.app.match2one.com/#/login'
 username = "sambasiva.gangumolu@mediamint.com"
@@ -15,10 +15,10 @@ ChromeOptions_instance = ChromeOptions(download_directory, chromedriver_path)
 chrome_options = ChromeOptions_instance.chrome_options
 driver = webdriver.Chrome(service=Service(executable_path=chromedriver_path),
                           options=chrome_options)
-
-date_range = "last monday to sunday"
-# "last monday to wednesday"
-# "last thursday to sunday"
+company_name = "Finixio"
+# date_range = "last monday to sunday"
+date_range = "last monday to wednesday"
+# date_range = "last thursday to sunday"
 
 required_clients_of_finixio = {
     'CO-KTSW8Z6X': "Luckyblock℗",
@@ -50,7 +50,7 @@ def finixio_sub_projects_data():
     sleep(3)
     cells = driver.find_elements(By.TAG_NAME, "th")
     sleep(2)
-    pattern = re.compile('|'.join(map(re.escape, required_clients_of_finixio.keys())))
+    # pattern = re.compile('|'.join(map(re.escape, required_clients_of_finixio.keys())))
     for cell in cells:
         c_ids.append(cell.text)
     return c_ids
@@ -161,6 +161,17 @@ def selenium_finixio_task():
                     print("Reports file downloaded successfully......")
                     sleep(3)
                     # data handling
+                    # drive_api_instance = GDAPI()
+                    # data_handling_instance = DataHandling(dest_file_name)
+                    # source_top_csv_file_path = data_handling_instance.get_top_csv_path_from_folder(download_directory)
+                    # renamer = FileRenamer(source_top_csv_file_path)
+                    # new_name = matching_sub_accounts_current_page[j]
+                    # new_path_post_rename = renamer.rename(new_name)
+                    # source_file_data = data_handling_instance.source_file_data(new_path_post_rename)
+                    # destination_file_data = data_handling_instance.dest_file_get_data()
+                    # data_handling_instance.write_data_to_dest_file(destination_file_data, source_file_data)
+
+                    # data handling start
                     drive_api_instance = GDAPI()
                     data_handling_instance = DataHandling(dest_file_name)
                     source_top_csv_file_path = data_handling_instance.get_top_csv_path_from_folder(download_directory)
@@ -168,6 +179,12 @@ def selenium_finixio_task():
                     destination_file_data = data_handling_instance.dest_file_get_data()
                     data_handling_instance.write_data_to_dest_file(destination_file_data, source_file_data)
                     print(f"Data Appended to the destination file successfully...")
+                    new_name = matching_sub_accounts_current_page[i] + required_clients_of_finixio.get(matching_sub_accounts_current_page[i]) + '.csv'
+                    destination_folder = r'D:\DownloadCsvHistory'
+                    FileHandler.complete_data_handler(source_top_csv_file_path, new_name, destination_folder, company_name)
+                    print(f" File {matching_sub_accounts_current_page[i]} moved to hostory folder sucessfully..")
+                    # data handling end
+
                     driver.execute_script("window.history.go(-4)")
                     sleep(3)
                     process_completed_for.append(matching_sub_accounts_current_page[i])

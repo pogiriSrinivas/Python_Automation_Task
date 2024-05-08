@@ -7,7 +7,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import os
 import csv
 from datetime import datetime, timedelta
-
+import shutil
 
 class ChromeOptions:
     driver = None
@@ -246,11 +246,78 @@ class FileRenamer:
         return new_file_path
 
 
+class FileManager:
+    def __init__(self, destination_folder):
+        self.destination_folder = destination_folder
+
+    def move_file(self, source_file_path):
+        # Get the filename from the full file path
+        file_name = os.path.basename(source_file_path)
+
+        # Move the file to the destination folder
+        destination_file_path = os.path.join(self.destination_folder, file_name)
+        if not os.path.exists(self.destination_folder):
+            os.makedirs(self.destination_folder)  # Create destination folder if it doesn't exist
+
+        shutil.move(source_file_path, destination_file_path)
+        print(f"{file_name} moved successfully to {self.destination_folder}")
+
+    @staticmethod
+    def create_folder_with_today_date(folder_path):
+        # Get today's date
+        today_date = datetime.today().strftime('%Y-%m-%d')
+
+        # Create folder with today's date
+        folder_path_with_date = os.path.join(folder_path, today_date)
+        if not os.path.exists(folder_path_with_date):
+            os.makedirs(folder_path_with_date)
+            print(f"Folder '{today_date}' created successfully at '{folder_path_with_date}'")
+        else:
+            print(f"Folder '{today_date}' already exists at '{folder_path_with_date}'")
+
+    @staticmethod
+    def create_folder_with_date_and_string(self, client_name):
+        # Get today's date
+        today_date = datetime.today().strftime('%Y-%m-%d')
+
+        # Create folder with today's date and client name
+        folder_name = f"{today_date}_{client_name}"
+        folder_path = os.path.join(self.history_folder, folder_name)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+            print(f"Folder '{folder_name}' created successfully at '{folder_path}'")
+        else:
+            print(f"Folder '{folder_name}' already exists at '{folder_path}'")
+
+        return folder_path
 
 
+class FileHandler:
+    @staticmethod
+    def complete_data_handler(file_path, new_name, destination_folder, company_name):
+        # Check if the destination folder exists, create it if not
+        if not os.path.exists(destination_folder):
+            os.makedirs(destination_folder)
 
+        # Construct the new file path with the new name
+        new_file_path = os.path.join(destination_folder, new_name)
 
+        # Rename the file
+        os.rename(file_path, new_file_path)
 
+        # Get the filename from the full file path
+        file_name = os.path.basename(new_file_path)
 
+        # Construct the folder name with current date and string name
+        today_date = datetime.now().strftime("%Y-%m-%d")
+        folder_name = f"{company_name}_{today_date}"
 
+        # Check if the folder exists, create it if not
+        folder_path = os.path.join(destination_folder, folder_name)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        # Move the file to the folder
+        destination_file_path = os.path.join(folder_path, file_name)
+        shutil.move(new_file_path, destination_file_path)
 
