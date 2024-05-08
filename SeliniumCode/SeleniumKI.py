@@ -1,6 +1,6 @@
 # Kinetic Investment Automation task modules
 from SeliniumCode.SeliniumClassFile import (LoginUser, WebDriverMethodClass,
-                                            GDAPI, ChromeOptions, DataHandling, DateGenerator)
+                                            GDAPI, ChromeOptions, DataHandling, DateGenerator, FileHandler)
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from time import sleep
