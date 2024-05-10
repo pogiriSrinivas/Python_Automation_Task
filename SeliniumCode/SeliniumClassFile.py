@@ -321,3 +321,60 @@ class FileHandler:
         destination_file_path = os.path.join(folder_path, file_name)
         shutil.move(new_file_path, destination_file_path)
 
+
+class Extractor:
+    @staticmethod
+    def extract_specific_values_from_list(string_value, list_value):
+        output = []
+        for i in range(len(list_value)):
+            _val = list_value.starswith(string_value)
+            output.append(_val)
+
+        return output
+
+    @staticmethod
+    def single_table_row_extractor(driver):
+        tables = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((By.TAG_NAME, "table")))
+        rows = None
+        # Iterate over each table
+        for table in tables:
+            # Find all rows within the table
+            rows = table.find_elements(By.TAG_NAME, "tr")
+
+        return rows
+
+    @staticmethod
+    def rows_to_dict(rows):
+        _rows = []
+
+        c_ids = []
+        c_names = []
+        op_dict = {}
+        for row in rows:
+            _row = row.text.split(" ")
+            _rows.append(_row)
+        _rows.pop(0)
+        for r in _rows:
+            if len(r) >= 2:  # Check if the row has at least 2 elements
+                c_ids.append(r[0])
+                c_names.append(r[1])
+
+        op_dict = dict(zip(c_ids, c_names))
+        return op_dict
+
+    @staticmethod
+    def add_client_column(csv_file, client_name):
+        rows = []
+        with open(csv_file, 'r', newline='') as csvfile:
+            csvreader = csv.reader(csvfile)
+            try:
+                header = next(csvreader)  # Read the header row
+            except StopIteration:
+                header = []  # If there's no header row, create an empty header
+            header.append('Client')  # Add 'Client' to the header
+            rows.append(header)  # Append the modified header to rows
+            for row in csvreader:
+                row.append(client_name)  # Add client name to each row
+                rows.append(row)  # Append the modified row to rows
+        return rows
+
