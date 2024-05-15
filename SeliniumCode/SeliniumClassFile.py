@@ -1,3 +1,4 @@
+from gspread import client
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -8,6 +9,8 @@ import os
 import csv
 from datetime import datetime, timedelta
 import shutil
+import pandas as pd
+
 
 class ChromeOptions:
     driver = None
@@ -133,6 +136,34 @@ class DataHandling(GDAPI):
         return source_file_data
 
     def write_data_to_dest_file(self, destination_file_data, source_file_data):
+        combined_data = None
+
+        # Check if destination_file_data is not empty
+        if destination_file_data and len(destination_file_data) > 0:
+            # If existing data is not empty and contains headers, remove the first row
+            if all(cell == '' for cell in destination_file_data[0]):
+                combined_data = source_file_data
+            elif all(cell != '' for cell in destination_file_data[0]):
+                if len(source_file_data) > 0:
+                    source_file_data.pop(0)
+                    combined_data = source_file_data
+
+                else:
+                    print("can not add the empty file to destination folder")
+
+        else:
+            # If destination_file_data is empty, use source_file_data directly
+            combined_data = source_file_data
+
+        if len(source_file_data) > 0:
+            # Append the combined data to the Google Sheets document
+            self.sheet.append_rows(combined_data)
+
+        else:
+            print("Source file is empty")
+
+
+    def append_to_google_sheets_with_extra_column(self, destination_file_data, source_file_data, client_name):
         combined_data = None
 
         # Check if destination_file_data is not empty
