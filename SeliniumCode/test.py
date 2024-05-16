@@ -22,6 +22,7 @@ date_range = "last monday to sunday"
 # date_range = "last monday to wednesday"
 # date_range = "last thursday to sunday"
 
+
 def finixio_campaigns_sub_projects_data():
     sleep(3)
     rows = Extractor.single_table_row_extractor(driver)
@@ -138,10 +139,11 @@ def selenium_finixio_campaigns_task():
         source_top_csv_file_path = data_handling_instance.get_top_csv_path_from_folder(download_directory)
         _name = op_dict[key].split('\n')[0]
         new_name = _name + '.csv'
+        client_name = _name
         source_file_data = data_handling_instance.source_file_data(source_top_csv_file_path)
         destination_file_data = data_handling_instance.dest_file_get_data()
-        data_handling_instance.write_data_to_dest_file(destination_file_data, source_file_data)
-        print(f"Data Appended to the destination file successfully...")
+        text_column = "Client Name"
+        data_handling_instance.append_to_google_sheets_with_extra_column(source_file_data, destination_file_data, text_column, client_name)
         # _name = op_dict[key].split('\n')[0]
         # new_name = _name + '.csv'
         destination_folder = r'D:\DownloadCsvHistory'

@@ -22,6 +22,7 @@ date_range = "last monday to sunday"
 # date_range = "last monday to wednesday"
 # date_range = "last thursday to sunday"
 
+
 def finixio_campaigns_sub_projects_data():
     sleep(3)
     rows = Extractor.single_table_row_extractor(driver)

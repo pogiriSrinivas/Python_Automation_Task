@@ -1,3 +1,5 @@
+import logging
+
 from gspread import client
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -9,7 +11,6 @@ import os
 import csv
 from datetime import datetime, timedelta
 import shutil
-import pandas as pd
 
 
 class ChromeOptions:
@@ -137,16 +138,17 @@ class DataHandling(GDAPI):
 
     def write_data_to_dest_file(self, destination_file_data, source_file_data):
         combined_data = None
-
         # Check if destination_file_data is not empty
         if destination_file_data and len(destination_file_data) > 0:
             # If existing data is not empty and contains headers, remove the first row
             if all(cell == '' for cell in destination_file_data[0]):
                 combined_data = source_file_data
+                print(f"Combined data : {combined_data} ")
             elif all(cell != '' for cell in destination_file_data[0]):
                 if len(source_file_data) > 0:
                     source_file_data.pop(0)
                     combined_data = source_file_data
+                    print(f"Combined data : {combined_data} ")
 
                 else:
                     print("can not add the empty file to destination folder")
@@ -154,6 +156,7 @@ class DataHandling(GDAPI):
         else:
             # If destination_file_data is empty, use source_file_data directly
             combined_data = source_file_data
+            print(f"Combined data : {combined_data} ")
 
         if len(source_file_data) > 0:
             # Append the combined data to the Google Sheets document
@@ -162,19 +165,31 @@ class DataHandling(GDAPI):
         else:
             print("Source file is empty")
 
+        print(combined_data)
 
-    def append_to_google_sheets_with_extra_column(self, destination_file_data, source_file_data, client_name):
+    def append_to_google_sheets_with_extra_column(self, source_file_data, destination_file_data, text_column,
+                                                  client_name):
         combined_data = None
-
         # Check if destination_file_data is not empty
         if destination_file_data and len(destination_file_data) > 0:
             # If existing data is not empty and contains headers, remove the first row
             if all(cell == '' for cell in destination_file_data[0]):
                 combined_data = source_file_data
+                if combined_data:
+                    print("Special 1")
+                    print(combined_data)
+                    for row in combined_data:
+                        row.append(client_name)
+
             elif all(cell != '' for cell in destination_file_data[0]):
                 if len(source_file_data) > 0:
                     source_file_data.pop(0)
                     combined_data = source_file_data
+                    if combined_data:
+                        print("Special 2")
+                        for row in combined_data:
+                            row.append(client_name)
+                    print(f"Combined data : {combined_data} ")
 
                 else:
                     print("can not add the empty file to destination folder")
@@ -182,6 +197,15 @@ class DataHandling(GDAPI):
         else:
             # If destination_file_data is empty, use source_file_data directly
             combined_data = source_file_data
+            if combined_data:
+                print("Special 3")
+                for i in range(len(combined_data)):
+                    if i == 0:
+                        combined_data[i].append(text_column)
+                    if i > 0:
+                        combined_data[i].append(client_name)
+
+            print(f"Combined data : {combined_data} ")
 
         if len(source_file_data) > 0:
             # Append the combined data to the Google Sheets document
@@ -189,6 +213,8 @@ class DataHandling(GDAPI):
 
         else:
             print("Source file is empty")
+
+        print(combined_data)
 
 
 class DateGenerator:

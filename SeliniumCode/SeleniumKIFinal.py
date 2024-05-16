@@ -135,6 +135,7 @@ def selenium_ki_task():
             WebDriverMethodClass_instance.webdriver_wait_by_xpath(list_options_to_be_clicked[12]).click()
             sleep(2)
             print("Reports file downloaded successfully......")
+
             # data handling start
             drive_api_instance = GDAPI()
             data_handling_instance = DataHandling(dest_file_name)
