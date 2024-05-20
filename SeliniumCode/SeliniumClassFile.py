@@ -11,7 +11,7 @@ import os
 import csv
 from datetime import datetime, timedelta
 import shutil
-
+from Country_Names import county_names
 
 class ChromeOptions:
     driver = None
@@ -104,10 +104,11 @@ class GDAPI:
 
 class DataHandling(GDAPI):
 
-    def __init__(self, dest_sheet_name):
+    def __init__(self, dest_sheet_name, sheet_text):
         super().__init__()  # Initialize the parent class to set up the client
         self.dest_sheet_name = dest_sheet_name
-        self.sheet = self.client.open(self.dest_sheet_name).sheet1  # Access the Google Sheets client from the parent class
+        self.sheet_text = sheet_text
+        self.sheet = self.client.open(self.dest_sheet_name).worksheet(self.sheet_text)  # Access the Google Sheets client from the parent class
 
     def dest_file_get_data(self):
         # Here you can use self.sheet to interact with the Google Sheets API
@@ -168,7 +169,7 @@ class DataHandling(GDAPI):
         print(combined_data)
 
     def append_to_google_sheets_with_extra_column(self, source_file_data, destination_file_data, text_column,
-                                                  client_name):
+                                                  client_name, start_date, date_column_text):
         combined_data = None
         # Check if destination_file_data is not empty
         if destination_file_data and len(destination_file_data) > 0:
@@ -189,6 +190,8 @@ class DataHandling(GDAPI):
                         print("Special 2")
                         for row in combined_data:
                             row.append(client_name)
+                            row.append(start_date)
+
                     print(f"Combined data : {combined_data} ")
 
                 else:
@@ -202,8 +205,11 @@ class DataHandling(GDAPI):
                 for i in range(len(combined_data)):
                     if i == 0:
                         combined_data[i].append(text_column)
+                        combined_data[i].append(date_column_text)
+
                     if i > 0:
                         combined_data[i].append(client_name)
+                        combined_data[i].append(start_date)
 
             print(f"Combined data : {combined_data} ")
 
@@ -216,6 +222,182 @@ class DataHandling(GDAPI):
 
         print(combined_data)
 
+    def append_to_google_sheets_with_extra_column_ki(self, destination_file_data, source_file_data):
+        combined_data = None
+        extra_column_list = ["Week No", "Downloaded Report Name", "Presales", "Country Name"]
+        # Check if destination_file_data is not empty
+        if destination_file_data and len(destination_file_data) > 0:
+            # If existing data is not empty and contains headers, remove the first row
+            if all(cell == '' for cell in destination_file_data[0]):
+                combined_data = source_file_data
+                if combined_data:
+                    print("Special 1")
+                    print(combined_data)
+
+            elif all(cell != '' for cell in destination_file_data[0]):
+                if len(source_file_data) > 0:
+                    source_file_data.pop(0)
+                    combined_data = source_file_data
+                    if combined_data:
+                        print("Special 2")
+                        for i in range(len(combined_data)):
+                            formatted_week = None
+                            Extract_Download_report_name = None
+                            presale_value = None
+                            country_name = None
+                            non_csvfile_column_values = [formatted_week, Extract_Download_report_name, presale_value, country_name]
+
+                            # week number:
+                            date_obj = datetime.strptime(combined_data[i][0], "%Y-%m-%d")
+                            week_number = date_obj.strftime("%W")
+                            non_csvfile_column_values[0] = f"Week {int(week_number) + 1}"
+                            # Extract Download report name:
+                            last_underscore_index = combined_data[i][1].rfind('_')
+                            non_csvfile_column_values[1] = combined_data[i][1][last_underscore_index + 1:]
+                            # Extract Presales value:
+                            first_underscore_index = combined_data[i][1].find('_')
+                            non_csvfile_column_values[2] = combined_data[i][1][:first_underscore_index]
+                            # Extract Country name:
+                            if combined_data[i][2] in county_names:
+                                non_csvfile_column_values[3] = county_names[combined_data[i][2]]
+                            print(non_csvfile_column_values)
+                            for j in range(len(non_csvfile_column_values)):
+                                combined_data[i].insert(j, non_csvfile_column_values[j])
+
+                    print(f"Combined data : {combined_data} ")
+
+                else:
+                    print("can not add the empty file to destination folder")
+
+        else:
+            # If destination_file_data is empty, use source_file_data directly
+            combined_data = source_file_data
+            if combined_data:
+                print("Special 3")
+                for i in range(len(combined_data)):
+                    if i == 0:
+                        for j in range(len(extra_column_list)):
+                            combined_data[i].insert(j, extra_column_list[j])
+
+                    if i > 0:
+                        formatted_week = None
+                        Extract_Download_report_name = None
+                        presale_value = None
+                        country_name = None
+                        non_csvfile_column_values = [formatted_week, Extract_Download_report_name, presale_value,
+                                                     country_name]
+                        # week number:
+                        date_obj = datetime.strptime(combined_data[i][0], "%Y-%m-%d")
+                        week_number = date_obj.strftime("%W")
+                        non_csvfile_column_values[0] = f"Week {int(week_number) + 1}"
+                        # Extract Download report name:
+                        last_underscore_index = combined_data[i][1].rfind('_')
+                        non_csvfile_column_values[1] = combined_data[i][1][last_underscore_index + 1:]
+                        # Extract Presales value:
+                        first_underscore_index = combined_data[i][1].find('_')
+                        non_csvfile_column_values[2] = combined_data[i][1][:first_underscore_index]
+                        # Extract Country name:
+                        if combined_data[i][2] in county_names:
+                            non_csvfile_column_values[3] = county_names[combined_data[i][2]]
+                        print(non_csvfile_column_values)
+                        for j in range(len(non_csvfile_column_values)):
+                            k = j
+                            combined_data[i].insert(k, non_csvfile_column_values[j])
+            print(f"Combined data : {combined_data} ")
+
+        if len(source_file_data) > 0:
+            # Append the combined data to the Google Sheets document
+            self.sheet.append_rows(combined_data)
+
+        else:
+            print("Source file is empty")
+
+        print(combined_data)
+
+    def append_to_google_sheets_with_extra_column_finixio(self, destination_file_data, source_file_data):
+        combined_data = None
+        extra_column_list = ['Week No',	'Account Name', 'Country Name']
+        # Check if destination_file_data is not empty
+        if destination_file_data and len(destination_file_data) > 0:
+            # If existing data is not empty and contains headers, remove the first row
+            if all(cell == '' for cell in destination_file_data[0]):
+                combined_data = source_file_data
+                if combined_data:
+                    print("Special 1")
+                    print(combined_data)
+
+            elif all(cell != '' for cell in destination_file_data[0]):
+                if len(source_file_data) > 0:
+                    source_file_data.pop(0)
+                    combined_data = source_file_data
+                    if combined_data:
+                        print("Special 2")
+                        for i in range(len(combined_data)):
+                            formatted_week = None
+                            Account_Name = None
+                            country_name = None
+                            non_csvfile_column_values = [formatted_week, Account_Name, country_name]
+
+                            # week number:
+                            date_obj = datetime.strptime(combined_data[i][0], "%Y-%m-%d")
+                            week_number = date_obj.strftime("%W")
+                            non_csvfile_column_values[0] = f"Week {int(week_number) + 1}"
+                            # Extract Download report name:
+                            last_underscore_index = combined_data[i][1].rfind('_')
+                            non_csvfile_column_values[1] = combined_data[i][1][last_underscore_index + 1:]
+                            # Extract Country name:
+                            if combined_data[i][2] in county_names:
+                                non_csvfile_column_values[2] = county_names[combined_data[i][2]]
+                            print(non_csvfile_column_values)
+                            for j in range(len(non_csvfile_column_values)):
+                                combined_data[i].insert(j, non_csvfile_column_values[j])
+
+                    print(f"Combined data : {combined_data} ")
+
+                else:
+                    print("can not add the empty file to destination folder")
+
+        else:
+            # If destination_file_data is empty, use source_file_data directly
+            combined_data = source_file_data
+            if combined_data:
+                print("Special 3")
+                for i in range(len(combined_data)):
+                    if i == 0:
+                        for j in range(len(extra_column_list)):
+                            combined_data[i].insert(j, extra_column_list[j])
+
+                    if i > 0:
+                        formatted_week = None
+                        Account_Name = None
+                        country_name = None
+                        non_csvfile_column_values = [formatted_week, Account_Name, country_name]
+                        # week number:
+                        date_obj = datetime.strptime(combined_data[i][0], "%Y-%m-%d")
+                        week_number = date_obj.strftime("%W")
+                        non_csvfile_column_values[0] = f"Week {int(week_number) + 1}"
+                        # Account Name:
+                        first_underscore_index = combined_data[i][1].find('_')
+                        substring_after_first_underscore = combined_data[i][1][first_underscore_index + 1:]
+                        next_underscore_index = substring_after_first_underscore.find('_')
+                        non_csvfile_column_values[1] = substring_after_first_underscore[:next_underscore_index]
+                        # Extract Country name:
+                        if combined_data[i][2] in county_names:
+                            non_csvfile_column_values[2] = county_names[combined_data[i][2]]
+                        print(non_csvfile_column_values)
+                        for j in range(len(non_csvfile_column_values)):
+                            k = j
+                            combined_data[i].insert(k, non_csvfile_column_values[j])
+            print(f"Combined data : {combined_data} ")
+
+        if len(source_file_data) > 0:
+            # Append the combined data to the Google Sheets document
+            self.sheet.append_rows(combined_data)
+
+        else:
+            print("Source file is empty")
+
+        print(combined_data)
 
 class DateGenerator:
     # def fetch_date_range(date_range):

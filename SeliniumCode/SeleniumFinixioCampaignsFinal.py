@@ -12,7 +12,7 @@ url = 'https://a2om.app.match2one.com/#/login'
 username = "sambasiva.gangumolu@mediamint.com"
 password = "@Shiva@11216@"
 download_directory = r'D:\Downloadcsv'
-dest_file_name = 'FinixioCampaignsDest'
+dest_file_name = 'FinixioDest'
 chromedriver_path = r'D:\Webdriver\chromedriver-win64\chromedriver.exe'
 ChromeOptions_instance = ChromeOptions(download_directory, chromedriver_path)
 chrome_options = ChromeOptions_instance.chrome_options
@@ -135,14 +135,18 @@ def selenium_finixio_campaigns_task():
 
         # data handling start
         drive_api_instance = GDAPI()
-        data_handling_instance = DataHandling(dest_file_name)
+        sheet_text = "sheet2"
+        data_handling_instance = DataHandling(dest_file_name, sheet_text)
         source_top_csv_file_path = data_handling_instance.get_top_csv_path_from_folder(download_directory)
         _name = op_dict[key].split('\n')[0]
         new_name = _name + '.csv'
+        client_name = _name
         source_file_data = data_handling_instance.source_file_data(source_top_csv_file_path)
         destination_file_data = data_handling_instance.dest_file_get_data()
-        data_handling_instance.write_data_to_dest_file(destination_file_data, source_file_data)
-        print(f"Data Appended to the destination file successfully...")
+        text_column = "Client Name"
+        start_date = str(dates[0])
+        date_column_text = "Start Date"
+        data_handling_instance.append_to_google_sheets_with_extra_column(source_file_data, destination_file_data, text_column, client_name, start_date, date_column_text)
         # _name = op_dict[key].split('\n')[0]
         # new_name = _name + '.csv'
         destination_folder = r'D:\DownloadCsvHistory'
