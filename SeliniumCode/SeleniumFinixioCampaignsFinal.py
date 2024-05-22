@@ -146,7 +146,7 @@ def selenium_finixio_campaigns_task():
         text_column = "Client Name"
         start_date = str(dates[0])
         date_column_text = "Start Date"
-        data_handling_instance.append_to_google_sheets_with_extra_column(source_file_data, destination_file_data, text_column, client_name, start_date, date_column_text)
+        data_handling_instance.append_to_google_sheets_with_extra_column(source_file_data, destination_file_data, text_column, start_date, date_column_text, client_name)
         # _name = op_dict[key].split('\n')[0]
         # new_name = _name + '.csv'
         destination_folder = r'D:\DownloadCsvHistory'

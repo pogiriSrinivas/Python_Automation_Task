@@ -129,6 +129,10 @@ class DataHandling(GDAPI):
             return None
 
     def source_file_data(self, source_csv_file_path):
+        # Check if source_csv_file_path is None
+        if source_csv_file_path is None:
+            return None  # Return None or handle the case appropriately
+
         # Read data from the CSV file and return it as a list of lists
         source_file_data = []
         with open(source_csv_file_path, 'r', newline='') as csvfile:
@@ -168,8 +172,8 @@ class DataHandling(GDAPI):
 
         print(combined_data)
 
-    def append_to_google_sheets_with_extra_column(self, source_file_data, destination_file_data, text_column,
-                                                  client_name, start_date, date_column_text):
+    def append_to_google_sheets_with_extra_column(self, source_file_data, destination_file_data,
+                                                  text_column, start_date, date_column_text, client_name):
         combined_data = None
         # Check if destination_file_data is not empty
         if destination_file_data and len(destination_file_data) > 0:

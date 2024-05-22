@@ -178,7 +178,7 @@ def selenium_finixio_task():
                     source_top_csv_file_path = data_handling_instance.get_top_csv_path_from_folder(download_directory)
                     source_file_data = data_handling_instance.source_file_data(source_top_csv_file_path)
                     destination_file_data = data_handling_instance.dest_file_get_data()
-                    data_handling_instance.append_to_google_sheets_with_extra_column_finixio(destination_file_data, source_file_data)
+                    data_handling_instance.write_data_to_dest_file(destination_file_data, source_file_data)
                     print(f"Data Appended to the destination file successfully...")
                     new_name = matching_sub_accounts_current_page[i] + required_clients_of_finixio.get(matching_sub_accounts_current_page[i]) + '.csv'
                     destination_folder = r'D:\DownloadCsvHistory'
