@@ -131,9 +131,9 @@ def selenium_ki_task():
             WebDriverMethodClass_instance.webdriver_wait_by_xpath(list_options_to_be_clicked[10]).send_keys(
                 str(dates[1]))
             WebDriverMethodClass_instance.webdriver_wait_by_xpath(list_options_to_be_clicked[11]).click()
-            sleep(2)
+            sleep(8)
             WebDriverMethodClass_instance.webdriver_wait_by_xpath(list_options_to_be_clicked[12]).click()
-            sleep(2)
+            sleep(4)
             print("Reports file downloaded successfully......")
 
             # data handling start
@@ -141,6 +141,7 @@ def selenium_ki_task():
             sheet_text = "sheet1"
             data_handling_instance = DataHandling(dest_file_name, sheet_text)
             source_top_csv_file_path = data_handling_instance.get_top_csv_path_from_folder(download_directory)
+            print(source_top_csv_file_path)
             source_file_data = data_handling_instance.source_file_data(source_top_csv_file_path)
             destination_file_data = data_handling_instance.dest_file_get_data()
             data_handling_instance.write_data_to_dest_file(destination_file_data, source_file_data)
@@ -148,7 +149,7 @@ def selenium_ki_task():
             new_name = matching_sub_accounts_current_page[i] + required_clients_of_finixio.get(
                 matching_sub_accounts_current_page[i]) + '.csv'
             FileHandler.complete_data_handler(source_top_csv_file_path, new_name, destination_folder, company_name)
-            print(f" File {matching_sub_accounts_current_page[i]} moved to hostory folder sucessfully..")
+            print(f" File {matching_sub_accounts_current_page[i]} moved to history folder successfully..")
             # data handling end
 
             driver.execute_script("window.history.go(-4)")

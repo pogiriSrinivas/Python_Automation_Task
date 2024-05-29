@@ -59,7 +59,7 @@ class WebDriverMethodClass:
         return WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, placeholder_value)))
 
     def webdriver_wait_by_xpath(self, placeholder_value):
-        return WebDriverWait(self.driver, 40).until(EC.element_to_be_clickable((By.XPATH, placeholder_value)))
+        return WebDriverWait(self.driver, 50).until(EC.element_to_be_clickable((By.XPATH, placeholder_value)))
 
     def find_element_by_css_selector(self, css_selector):
         return self.driver.find_element(By.CSS_SELECTOR, css_selector)
@@ -120,8 +120,11 @@ class DataHandling(GDAPI):
     def get_top_csv_path_from_folder(folder_path):
         # Get the top CSV file path from the specified folder
         all_files = os.listdir(folder_path)
+        print(f"All files {all_files}")
         csv_files = [file for file in all_files if file.endswith('.csv')]
+        print(f" csv file{csv_files}")
         sorted_csv_files = sorted(csv_files, key=lambda x: os.path.getmtime(os.path.join(folder_path, x)), reverse=True)
+        print(f"sorted csv file{sorted_csv_files}")
         if sorted_csv_files:
             top_csv_file_path = os.path.join(folder_path, sorted_csv_files[0])
             return top_csv_file_path
@@ -148,12 +151,11 @@ class DataHandling(GDAPI):
             # If existing data is not empty and contains headers, remove the first row
             if all(cell == '' for cell in destination_file_data[0]):
                 combined_data = source_file_data
-                print(f"Combined data : {combined_data} ")
+
             elif all(cell != '' for cell in destination_file_data[0]):
-                if len(source_file_data) > 0:
+                if source_file_data and len(source_file_data) > 0:
                     source_file_data.pop(0)
                     combined_data = source_file_data
-                    print(f"Combined data : {combined_data} ")
 
                 else:
                     print("can not add the empty file to destination folder")
@@ -163,7 +165,7 @@ class DataHandling(GDAPI):
             combined_data = source_file_data
             print(f"Combined data : {combined_data} ")
 
-        if len(source_file_data) > 0:
+        if source_file_data and len(source_file_data) > 0:
             # Append the combined data to the Google Sheets document
             self.sheet.append_rows(combined_data)
 
@@ -544,7 +546,6 @@ class FileHandler:
 
         # Construct the new file path with the new name
         new_file_path = os.path.join(destination_folder, new_name)
-
         # Rename the file
         os.rename(file_path, new_file_path)
 
